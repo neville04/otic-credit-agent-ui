@@ -2,58 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
     /* Otic Credit Agent Brand Colors */
-    --background: 240 91% 18%; /* #040458 - Deep navy blue */
-    --foreground: 240 20% 98%;
-    
-    --card: 240 85% 22%;
-    --card-foreground: 240 20% 98%;
-    --card-glow: 240 90% 25%;
-    
-    --popover: 240 88% 20%;
-    --popover-foreground: 240 20% 98%;
-    
-    --primary: 37 96% 54%; /* #FAA51A - Vibrant orange */
-    --primary-foreground: 240 91% 12%;
-    --primary-glow: 37 96% 64%;
-    
-    --secondary: 240 80% 28%;
-    --secondary-foreground: 240 20% 98%;
-    
-    --muted: 240 70% 25%;
-    --muted-foreground: 240 10% 70%;
-    
-    --accent: 37 96% 54%;
-    --accent-foreground: 240 91% 12%;
-    
+    /* Main page background is now white, text is dark neutral */
+    --background: 0 0% 100%;          /* #FFFFFF - White */
+    --foreground: 222 47% 11%;        /* Dark slate-like text */
+
+    /* Brand blue & orange (converted to HSL) */
+    /* #0D104F ≈ hsl(237, 74%, 18%) */
+    /* #F89F3F ≈ hsl(33, 94%, 61%) */
+
+    /* Cards: mostly white, slight elevation; use blue via borders/text, not solid fill */
+    --card: 0 0% 100%;                /* White cards */
+    --card-foreground: 222 47% 11%;
+    --card-glow: 237 74% 22%;
+
+    /* Popovers/menus can use a very light blue-tinted background */
+    --popover: 228 40% 97%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary = Otic orange, used for main CTAs and highlights */
+    --primary: 33 94% 61%;            /* #F89F3F */
+    --primary-foreground: 237 74% 18%;/* Dark blue text on orange */
+    --primary-glow: 33 94% 70%;
+
+    /* Secondary surfaces: subtle brand blue tint */
+    --secondary: 237 74% 18%;         /* #0D104F */
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted text & surfaces */
+    --muted: 220 15% 94%;
+    --muted-foreground: 215 15% 60%;
+
+    /* Accent can reuse primary orange for chips/pills */
+    --accent: 33 94% 61%;
+    --accent-foreground: 237 74% 18%;
+
+    /* Destructive */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 240 20% 98%;
-    
-    --border: 240 60% 30%;
-    --input: 240 70% 28%;
-    --ring: 37 96% 54%;
-    
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders, inputs, rings */
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 33 94% 61%;
+
     --radius: 0.75rem;
-    
-    /* Glassmorphism */
-    --glass-bg: 240 85% 22% / 0.4;
-    --glass-border: 240 20% 98% / 0.1;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(37 96% 54%), hsl(37 96% 64%));
-    --gradient-card: linear-gradient(135deg, hsl(240 85% 22%), hsl(240 80% 25%));
-    --gradient-hero: linear-gradient(180deg, hsl(240 91% 18%), hsl(240 85% 22%));
-    
+
+    /* Glassmorphism:
+       Use brand blue as the base but with low opacity so it works on white. */
+    --glass-bg: 237 74% 18% / 0.12;
+    --glass-border: 0 0% 100% / 0.12;
+
+    /* Gradients:
+       Hero/primary gradients mix deep blue and orange for a futuristic feel. */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(33 94% 61%),
+      hsl(33 94% 70%)
+    );
+    --gradient-card: linear-gradient(
+      135deg,
+      hsl(237 74% 18%),
+      hsl(237 74% 26%)
+    );
+    --gradient-hero: linear-gradient(
+      180deg,
+      hsl(237 74% 18%),
+      hsl(237 74% 12%)
+    );
+
     /* Shadows & Glows */
-    --shadow-glow: 0 0 40px hsl(37 96% 54% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(240 91% 10% / 0.5);
-    --shadow-elevated: 0 20px 50px -15px hsl(240 91% 10% / 0.7);
+    --shadow-glow: 0 0 40px hsl(33 94% 61% / 0.35);
+    --shadow-card: 0 10px 30px -10px hsl(221 39% 11% / 0.25);
+    --shadow-elevated: 0 20px 50px -15px hsl(221 39% 11% / 0.35);
   }
 }
 
@@ -61,13 +88,18 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 600;
   }
@@ -80,33 +112,33 @@ All colors MUST be HSL.
     border: 1px solid hsl(var(--glass-border));
     box-shadow: var(--shadow-card);
   }
-  
+
   .glass-card-elevated {
     background: hsl(var(--card));
     backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border));
     box-shadow: var(--shadow-elevated);
   }
-  
+
   .glow-primary {
     box-shadow: var(--shadow-glow);
   }
-  
+
   .text-gradient {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out;
   }
-  
+
   .animate-slide-up {
     animation: slideUp 0.5s ease-out;
   }
-  
+
   .animate-glow {
     animation: glow 2s ease-in-out infinite;
   }
@@ -133,13 +165,17 @@ All colors MUST be HSL.
 }
 
 @keyframes glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 10px hsl(37 96% 54% / 0.3));
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px hsl(33 94% 61% / 0.3));
   }
   50% {
-    filter: drop-shadow(0 0 20px hsl(37 96% 54% / 0.6));
+    filter: drop-shadow(0 0 20px hsl(33 94% 61% / 0.6));
   }
 }
+
+/* This duplicate base block is unnecessary now, so we can keep a single one.
+   If you prefer to leave it, it should match the first body definition: */
 
 @layer base {
   * {
