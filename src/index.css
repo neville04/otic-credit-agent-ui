@@ -2,44 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
-   All colors MUST be HSL.
-*/
+/* Design system: all colors in HSL */
 
 @layer base {
   :root {
-    /* Otic Credit Agent Brand Colors */
-    /* Main page background is now white, text is dark neutral */
-    --background: 0 0% 100%;          /* #FFFFFF - White */
-    --foreground: 222 47% 11%;        /* Dark slate-like text */
+    /* Main surface: white, dark text */
+    --background: 0 0% 100%;          /* white */
+    --foreground: 222 47% 11%;        /* dark neutral text */
 
-    /* Brand blue & orange (converted to HSL) */
+    /* Brand colors (converted from your hex codes) */
     /* #0D104F ≈ hsl(237, 74%, 18%) */
     /* #F89F3F ≈ hsl(33, 94%, 61%) */
 
-    /* Cards: mostly white, slight elevation; use blue via borders/text, not solid fill */
-    --card: 0 0% 100%;                /* White cards */
+    /* Cards: white, clearly elevated */
+    --card: 0 0% 100%;                /* white cards */
     --card-foreground: 222 47% 11%;
     --card-glow: 237 74% 22%;
 
-    /* Popovers/menus can use a very light blue-tinted background */
+    /* Popovers / dropdowns */
     --popover: 228 40% 97%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary = Otic orange, used for main CTAs and highlights */
+    /* Primary = Otic orange */
     --primary: 33 94% 61%;            /* #F89F3F */
-    --primary-foreground: 237 74% 18%;/* Dark blue text on orange */
+    --primary-foreground: 237 74% 18%;/* dark blue text on orange */
     --primary-glow: 33 94% 70%;
 
-    /* Secondary surfaces: subtle brand blue tint */
+    /* Secondary = brand blue (for strong surfaces like header chips, icons) */
     --secondary: 237 74% 18%;         /* #0D104F */
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted text & surfaces */
+    /* Muted */
     --muted: 220 15% 94%;
     --muted-foreground: 215 15% 60%;
 
-    /* Accent can reuse primary orange for chips/pills */
+    /* Accent reuses orange */
     --accent: 33 94% 61%;
     --accent-foreground: 237 74% 18%;
 
@@ -47,20 +44,18 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders, inputs, rings */
+    /* Borders / inputs / focus ring */
     --border: 220 15% 90%;
     --input: 220 15% 90%;
     --ring: 33 94% 61%;
 
     --radius: 0.75rem;
 
-    /* Glassmorphism:
-       Use brand blue as the base but with low opacity so it works on white. */
-    --glass-bg: 237 74% 18% / 0.12;
-    --glass-border: 0 0% 100% / 0.12;
+    /* Glassmorphism (subtle blue tint on white) */
+    --glass-bg: 237 74% 18% / 0.08;
+    --glass-border: 0 0% 100% / 0.16;
 
-    /* Gradients:
-       Hero/primary gradients mix deep blue and orange for a futuristic feel. */
+    /* Gradients using blue + orange */
     --gradient-primary: linear-gradient(
       135deg,
       hsl(33 94% 61%),
@@ -106,6 +101,7 @@
 }
 
 @layer utilities {
+  /* Use this on hero/stat cards to get that soft elevated look */
   .glass-card {
     background: hsl(var(--glass-bg));
     backdrop-filter: blur(20px);
@@ -174,9 +170,7 @@
   }
 }
 
-/* This duplicate base block is unnecessary now, so we can keep a single one.
-   If you prefer to leave it, it should match the first body definition: */
-
+/* Keep this final base layer minimal and consistent */
 @layer base {
   * {
     @apply border-border;
