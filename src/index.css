@@ -9,51 +9,51 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Otic Credit Agent Brand Colors */
-    --background: 235 72% 18%; /* #0D104F - Deep indigo */
+    --background: 240 91% 18%; /* #040458 - Deep navy blue */
     --foreground: 240 20% 98%;
     
-    --card: 235 60% 22%;
+    --card: 240 85% 22%;
     --card-foreground: 240 20% 98%;
-    --card-glow: 235 70% 25%;
+    --card-glow: 240 90% 25%;
     
-    --popover: 235 65% 20%;
+    --popover: 240 88% 20%;
     --popover-foreground: 240 20% 98%;
     
-    --primary: 33 93% 61%; /* #F89F3F - Vibrant orange accent */
-    --primary-foreground: 235 72% 12%;
-    --primary-glow: 33 93% 71%;
+    --primary: 37 96% 54%; /* #FAA51A - Vibrant orange */
+    --primary-foreground: 240 91% 12%;
+    --primary-glow: 37 96% 64%;
     
-    --secondary: 235 50% 28%;
+    --secondary: 240 80% 28%;
     --secondary-foreground: 240 20% 98%;
     
-    --muted: 235 40% 25%;
+    --muted: 240 70% 25%;
     --muted-foreground: 240 10% 70%;
     
-    --accent: 33 93% 61%;
-    --accent-foreground: 235 72% 12%;
+    --accent: 37 96% 54%;
+    --accent-foreground: 240 91% 12%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 240 20% 98%;
     
-    --border: 235 40% 30%;
-    --input: 235 40% 28%;
-    --ring: 33 93% 61%;
+    --border: 240 60% 30%;
+    --input: 240 70% 28%;
+    --ring: 37 96% 54%;
     
     --radius: 0.75rem;
     
     /* Glassmorphism */
-    --glass-bg: 235 60% 22% / 0.4;
+    --glass-bg: 240 85% 22% / 0.4;
     --glass-border: 240 20% 98% / 0.1;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(33 93% 61%), hsl(33 93% 71%));
-    --gradient-card: linear-gradient(135deg, hsl(235 60% 22%), hsl(235 50% 25%));
-    --gradient-hero: linear-gradient(180deg, hsl(235 72% 18%), hsl(235 60% 22%));
+    --gradient-primary: linear-gradient(135deg, hsl(37 96% 54%), hsl(37 96% 64%));
+    --gradient-card: linear-gradient(135deg, hsl(240 85% 22%), hsl(240 80% 25%));
+    --gradient-hero: linear-gradient(180deg, hsl(240 91% 18%), hsl(240 85% 22%));
     
     /* Shadows & Glows */
-    --shadow-glow: 0 0 40px hsl(33 93% 61% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(235 72% 10% / 0.5);
-    --shadow-elevated: 0 20px 50px -15px hsl(235 72% 10% / 0.7);
+    --shadow-glow: 0 0 40px hsl(37 96% 54% / 0.3);
+    --shadow-card: 0 10px 30px -10px hsl(240 91% 10% / 0.5);
+    --shadow-elevated: 0 20px 50px -15px hsl(240 91% 10% / 0.7);
   }
 }
 
@@ -134,10 +134,10 @@ All colors MUST be HSL.
 
 @keyframes glow {
   0%, 100% {
-    filter: drop-shadow(0 0 10px hsl(33 93% 61% / 0.3));
+    filter: drop-shadow(0 0 10px hsl(37 96% 54% / 0.3));
   }
   50% {
-    filter: drop-shadow(0 0 20px hsl(33 93% 61% / 0.6));
+    filter: drop-shadow(0 0 20px hsl(37 96% 54% / 0.6));
   }
 }
 
