@@ -37,38 +37,41 @@ export default function Admin() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto space-y-8 pb-20 md:pb-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-display font-bold text-foreground mb-1 md:mb-2">
             Admin Portal
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-xs md:text-sm lg:text-base text-muted-foreground">
             Manage users, permissions, and enterprise integrations
           </p>
         </div>
 
         {/* User Management */}
         <SectionCard title="User Management" description="Manage roles and access control">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-3 md:mx-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-xs md:text-sm">Name</TableHead>
+                  <TableHead className="text-xs md:text-sm hidden lg:table-cell">Email</TableHead>
+                  <TableHead className="text-xs md:text-sm">Role</TableHead>
+                  <TableHead className="text-xs md:text-sm hidden md:table-cell">Status</TableHead>
+                  <TableHead className="text-xs md:text-sm">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user, idx) => (
                   <TableRow key={idx}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell className="font-medium text-xs md:text-sm">
+                      <div>{user.name}</div>
+                      <div className="lg:hidden text-[10px] text-muted-foreground">{user.email}</div>
+                    </TableCell>
+                    <TableCell className="text-xs md:text-sm text-muted-foreground hidden lg:table-cell">{user.email}</TableCell>
                     <TableCell>
                       <Select defaultValue={user.role.toLowerCase().replace(" ", "-")}>
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-[90px] md:w-[120px] text-xs md:text-sm h-8 md:h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -79,13 +82,13 @@ export default function Admin() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
-                      <span className="px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium">
+                    <TableCell className="hidden md:table-cell">
+                      <span className="px-2 md:px-2.5 py-0.5 md:py-1 rounded-full bg-green-500/10 text-green-400 text-[10px] md:text-xs font-medium">
                         {user.status}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm" className="text-xs md:text-sm h-7 md:h-8 px-2 md:px-3">Edit</Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -96,12 +99,12 @@ export default function Admin() {
 
         {/* Connections */}
         <SectionCard title="Enterprise Connections" description="System integrations and data sources">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
             {connections.map((conn, idx) => (
-              <div key={idx} className="p-4 rounded-lg border border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Database className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-foreground">{conn.name}</span>
+              <div key={idx} className="p-3 md:p-4 rounded-lg border border-border flex items-center justify-between">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Database className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                  <span className="font-medium text-foreground text-xs md:text-sm">{conn.name}</span>
                 </div>
                 <StatusBadge status={conn.status} />
               </div>
@@ -111,19 +114,19 @@ export default function Admin() {
 
         {/* Audit Log */}
         <SectionCard title="Audit Log" description="Recent system activity">
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {auditLog.map((log, idx) => (
-              <div key={idx} className="p-4 rounded-lg bg-muted/30 flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <Activity className="w-5 h-5 text-primary mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
+              <div key={idx} className="p-2 md:p-4 rounded-lg bg-muted/30 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-0">
+                <div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
+                  <Activity className="w-4 h-4 md:w-5 md:h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs md:text-sm font-medium text-foreground">
                       <span className="text-primary">{log.user}</span> {log.action}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{log.detail}</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">{log.detail}</p>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground">{log.time}</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground whitespace-nowrap">{log.time}</span>
               </div>
             ))}
           </div>

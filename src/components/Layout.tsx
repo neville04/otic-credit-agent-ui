@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { LayoutDashboard, Calendar, Settings, Sparkles } from "lucide-react";
+import { LayoutDashboard, Calendar, Settings } from "lucide-react";
+import oticLogo from "@/assets/otic-logo.jpg";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,15 +12,17 @@ export const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border backdrop-blur-xl bg-background/80">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 md:px-4 py-2 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary-foreground" />
-              </div>
+            <div className="flex items-center gap-2 md:gap-3">
+              <img 
+                src={oticLogo} 
+                alt="Otic Credit Agent" 
+                className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover"
+              />
               <div>
-                <h1 className="text-xl font-display font-bold text-foreground">Otic Credit Agent</h1>
-                <p className="text-xs text-muted-foreground">Credit Intelligence Platform</p>
+                <h1 className="text-base md:text-xl font-display font-bold text-foreground">Otic Credit Agent</h1>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">Credit Intelligence Platform</p>
               </div>
             </div>
             
@@ -60,7 +63,7 @@ export const Layout = ({ children }: LayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-8 pb-20 md:pb-8">
         {children}
       </main>
 

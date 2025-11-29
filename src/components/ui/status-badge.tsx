@@ -26,11 +26,11 @@ export const StatusBadge = ({ status, label }: StatusBadgeProps) => {
 
   return (
     <span className={cn(
-      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border",
+      "inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium border whitespace-nowrap",
       variants[status]
     )}>
-      <span>{icons[status]}</span>
-      {labels[status]}
+      <span className="text-xs md:text-sm">{icons[status]}</span>
+      <span className="hidden sm:inline">{labels[status]}</span>
     </span>
   );
 };
