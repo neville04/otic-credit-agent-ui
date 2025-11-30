@@ -141,8 +141,9 @@ export default function Landing() {
                 size="lg" 
                 variant="outline"
                 className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                asChild
               >
-                Book a Demo
+                <a href="mailto:info@oticgroup.net">Book a Demo</a>
               </Button>
             </div>
           </div>
