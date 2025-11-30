@@ -11,76 +11,74 @@
     /* Otic Credit Agent Brand Colors */
     /* Main page background is now white, text is dark neutral */
     --background: 0 0% 100%;          /* #FFFFFF - White */
-    --foreground: 222 47% 11%;        /* Dark slate-like text */
+    --foreground: 237 87% 18%;        /* #0D104F - Deep Navy Blue */
 
-    /* Brand blue & orange (converted to HSL) */
-    /* #0D104F ≈ hsl(237, 74%, 18%) */
-    /* #F89F3F ≈ hsl(33, 94%, 61%) */
+    /* Brand colors: #0D104F (deep navy) and #FAA51A (vibrant orange) */
+    /* #0D104F ≈ hsl(237, 87%, 18%) */
+    /* #FAA51A ≈ hsl(38, 96%, 55%) */
 
-    /* Cards: mostly white, slight elevation; use blue via borders/text, not solid fill */
+    /* Cards: white with subtle shadows */
     --card: 0 0% 100%;                /* White cards */
-    --card-foreground: 222 47% 11%;
-    --card-glow: 237 74% 22%;
+    --card-foreground: 237 87% 18%;   /* #0D104F text */
+    --card-glow: 38 96% 55%;
 
-    /* Popovers/menus can use a very light blue-tinted background */
-    --popover: 228 40% 97%;
-    --popover-foreground: 222 47% 11%;
+    /* Popovers/menus */
+    --popover: 0 0% 100%;
+    --popover-foreground: 237 87% 18%;
 
-    /* Primary = Otic orange, used for main CTAs and highlights */
-    --primary: 33 94% 61%;            /* #F89F3F */
-    --primary-foreground: 237 74% 18%;/* Dark blue text on orange */
-    --primary-glow: 33 94% 70%;
+    /* Primary = Otic orange #FAA51A, used for main CTAs and highlights */
+    --primary: 38 96% 55%;            /* #FAA51A */
+    --primary-foreground: 0 0% 100%;  /* White text on orange */
+    --primary-glow: 38 96% 65%;
 
-    /* Secondary surfaces: subtle brand blue tint */
-    --secondary: 237 74% 18%;         /* #0D104F */
+    /* Secondary = Deep navy blue #0D104F for headers, titles */
+    --secondary: 237 87% 18%;         /* #0D104F */
     --secondary-foreground: 0 0% 100%;
 
     /* Muted text & surfaces */
-    --muted: 220 15% 94%;
-    --muted-foreground: 215 15% 60%;
+    --muted: 220 15% 96%;
+    --muted-foreground: 220 15% 45%;
 
-    /* Accent can reuse primary orange for chips/pills */
-    --accent: 33 94% 61%;
-    --accent-foreground: 237 74% 18%;
+    /* Accent = primary orange for chips/pills */
+    --accent: 38 96% 55%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders, inputs, rings */
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 33 94% 61%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 38 96% 55%;
 
     --radius: 0.75rem;
 
-    /* Glassmorphism:
-       Use brand blue as the base but with low opacity so it works on white. */
-    --glass-bg: 237 74% 18% / 0.12;
-    --glass-border: 0 0% 100% / 0.12;
+    /* Glassmorphism - subtle for white backgrounds */
+    --glass-bg: 0 0% 100% / 0.8;
+    --glass-border: 237 87% 18% / 0.1;
 
-    /* Gradients:
-       Hero/primary gradients mix deep blue and orange for a futuristic feel. */
+    /* Gradients: orange for CTAs, blue for headers */
     --gradient-primary: linear-gradient(
       135deg,
-      hsl(33 94% 61%),
-      hsl(33 94% 70%)
+      hsl(38 96% 55%),
+      hsl(38 96% 65%)
     );
     --gradient-card: linear-gradient(
       135deg,
-      hsl(237 74% 18%),
-      hsl(237 74% 26%)
+      hsl(0 0% 100%),
+      hsl(220 15% 98%)
     );
     --gradient-hero: linear-gradient(
       180deg,
-      hsl(237 74% 18%),
-      hsl(237 74% 12%)
+      hsl(237 87% 18%),
+      hsl(237 87% 12%)
     );
 
     /* Shadows & Glows */
-    --shadow-glow: 0 0 40px hsl(33 94% 61% / 0.35);
-    --shadow-card: 0 10px 30px -10px hsl(221 39% 11% / 0.25);
-    --shadow-elevated: 0 20px 50px -15px hsl(221 39% 11% / 0.35);
+    --shadow-glow: 0 0 40px hsl(38 96% 55% / 0.35);
+    --shadow-card: 0 4px 20px -4px hsl(237 87% 18% / 0.1);
+    --shadow-elevated: 0 10px 40px -10px hsl(237 87% 18% / 0.15);
   }
 }
 
@@ -107,16 +105,14 @@
 
 @layer utilities {
   .glass-card {
-    background: hsl(var(--glass-bg));
-    backdrop-filter: blur(20px);
-    border: 1px solid hsl(var(--glass-border));
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);
   }
 
   .glass-card-elevated {
     background: hsl(var(--card));
-    backdrop-filter: blur(20px);
-    border: 1px solid hsl(var(--glass-border));
+    border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-elevated);
   }
 
@@ -167,10 +163,10 @@
 @keyframes glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 10px hsl(33 94% 61% / 0.3));
+    filter: drop-shadow(0 0 10px hsl(38 96% 55% / 0.3));
   }
   50% {
-    filter: drop-shadow(0 0 20px hsl(33 94% 61% / 0.6));
+    filter: drop-shadow(0 0 20px hsl(38 96% 55% / 0.6));
   }
 }
 

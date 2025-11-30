@@ -10,29 +10,21 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-8">
-        {/* Hero Section */}
-        <div className="glass-card-elevated rounded-xl md:rounded-2xl p-4 md:p-8 lg:p-12 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 md:w-96 md:h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="relative z-10">
-            <div className="inline-block px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-medium mb-2 md:mb-4">
-              Enterprise Credit Intelligence
-            </div>
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-2 md:mb-4 leading-tight">
-              The Intelligence Behind Every{" "}
-              <span className="text-gradient">Credit Decision</span>
-            </h1>
-            <p className="text-sm md:text-base lg:text-lg text-muted-foreground mb-4 md:mb-8 max-w-2xl">
-              Universal enterprise Agentic AI that automates and augments the entire credit analysis lifecycle.
-            </p>
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto bg-primary hover:bg-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl glow-primary transition-all text-sm md:text-base"
-              onClick={() => navigate("/scheduler")}
-            >
-              <Plus className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-              Create New Report
-            </Button>
+        {/* Quick Actions */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl md:text-3xl font-display font-bold text-secondary mb-1">Dashboard Overview</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Monitor your credit analysis operations</p>
           </div>
+          <Button 
+            size="lg" 
+            className="bg-primary hover:bg-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all text-xs md:text-base h-9 md:h-11"
+            onClick={() => navigate("/scheduler")}
+          >
+            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Create New Report</span>
+            <span className="sm:hidden">New Report</span>
+          </Button>
         </div>
 
         {/* Stats Grid */}
