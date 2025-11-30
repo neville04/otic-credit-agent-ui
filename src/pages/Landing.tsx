@@ -9,7 +9,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import oticLogo from "@/assets/otic-logo.jpg";
-import heroImage from "@/assets/hero-credit-ai.jpg";
+import heroBg from "@/assets/hero-bg.jpg";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -70,44 +76,74 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 md:py-20 lg:py-32">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="space-y-4 md:space-y-6 animate-fade-in">
-              <div className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-medium">
-                Enterprise Agentic AI
-              </div>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight">
-                The Intelligence Behind Every{" "}
-                <span className="text-primary">Credit Decision</span>
-              </h1>
-              <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl">
-                Otic Credit Agent is a universal enterprise Agentic AI system that automates, 
-                accelerates, and elevates credit analysis across your organization.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                <Button 
-                  size="lg" 
-                  className="w-full sm:w-auto bg-primary hover:bg-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
-                  onClick={() => document.getElementById('admin-access')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  Get Started
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="w-full sm:w-auto border-secondary text-secondary hover:bg-secondary/5"
-                >
-                  Book a Demo
-                </Button>
-              </div>
+      <section className="relative overflow-hidden min-h-[70vh] md:min-h-[80vh] flex items-center">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBg})` }}
+        >
+          <div className="absolute inset-0 bg-secondary/70" />
+        </div>
+
+        {/* Content */}
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="max-w-4xl mx-auto text-center space-y-6 md:space-y-8">
+            {/* Main Heading */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold leading-tight text-white animate-fade-in">
+              The Intelligence Behind Every{" "}
+              <span className="text-primary">Credit Decision</span>
+            </h1>
+
+            {/* Carousel */}
+            <div className="max-w-2xl mx-auto">
+              <Carousel
+                opts={{
+                  align: "center",
+                  loop: true,
+                }}
+                plugins={[
+                  Autoplay({
+                    delay: 3000,
+                  }),
+                ]}
+                className="w-full"
+              >
+                <CarouselContent>
+                  <CarouselItem>
+                    <p className="text-xl md:text-2xl lg:text-3xl text-white/90 font-medium">
+                      <span className="text-primary">Automate</span> your organization's credit analysis
+                    </p>
+                  </CarouselItem>
+                  <CarouselItem>
+                    <p className="text-xl md:text-2xl lg:text-3xl text-white/90 font-medium">
+                      <span className="text-primary">Accelerate</span> your organization's credit analysis
+                    </p>
+                  </CarouselItem>
+                  <CarouselItem>
+                    <p className="text-xl md:text-2xl lg:text-3xl text-white/90 font-medium">
+                      <span className="text-primary">Elevate</span> your organization's credit analysis
+                    </p>
+                  </CarouselItem>
+                </CarouselContent>
+              </Carousel>
             </div>
-            <div className="relative animate-slide-up">
-              <img 
-                src={heroImage} 
-                alt="Credit Intelligence Platform" 
-                className="rounded-2xl shadow-elevated w-full"
-              />
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center pt-4">
+              <Button 
+                size="lg" 
+                className="w-full sm:w-auto bg-primary hover:bg-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
+                onClick={() => document.getElementById('admin-access')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Get Started
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+              >
+                Book a Demo
+              </Button>
             </div>
           </div>
         </div>
