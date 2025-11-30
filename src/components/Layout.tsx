@@ -1,6 +1,9 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { LayoutDashboard, Calendar, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LayoutDashboard, Calendar, Settings, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import oticLogo from "@/assets/otic-logo.jpg";
 
 interface LayoutProps {
@@ -8,6 +11,14 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -28,7 +39,7 @@ export const Layout = ({ children }: LayoutProps) => {
             
             <nav className="hidden md:flex items-center gap-1">
               <NavLink
-                to="/"
+                to="/dashboard"
                 className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
                 activeClassName="!text-foreground bg-muted"
               >
@@ -57,6 +68,15 @@ export const Layout = ({ children }: LayoutProps) => {
                   Admin
                 </div>
               </NavLink>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="ml-2 text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </nav>
           </div>
         </div>
@@ -71,7 +91,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border backdrop-blur-xl bg-background/90 z-50">
         <div className="flex items-center justify-around py-3">
           <NavLink
-            to="/"
+            to="/dashboard"
             className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground"
             activeClassName="!text-primary"
           >
