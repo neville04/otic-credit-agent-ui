@@ -156,7 +156,7 @@ export default function Landing() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div className="space-y-4 md:space-y-6">
               <h2 className="text-2xl md:text-4xl font-display font-bold text-secondary">
-                What is Otic Credit Agent?
+                What is the Otic Credit Agent?
               </h2>
               <div className="space-y-3 md:space-y-4 text-sm md:text-base text-foreground/80">
                 <p>
