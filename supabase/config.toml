@@ -1,1 +1,4 @@
 project_id = "umruznuogjtencbzcxxm"
+
+[functions.trigger-azure-agent]
+verify_jwt = true
