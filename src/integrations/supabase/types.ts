@@ -14,16 +14,303 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          organization_id: string
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          organization_id: string
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          organization_id?: string
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          azure_connection_config: Json | null
+          created_at: string | null
+          domain: string | null
+          id: string
+          name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          azure_connection_config?: Json | null
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          azure_connection_config?: Json | null
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          organization_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          organization_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          organization_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          custom_prompt: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          name: string
+          organization_id: string
+          result: Json | null
+          status: Database["public"]["Enums"]["report_status"] | null
+          template: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_prompt?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          name: string
+          organization_id: string
+          result?: Json | null
+          status?: Database["public"]["Enums"]["report_status"] | null
+          template: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          custom_prompt?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          name?: string
+          organization_id?: string
+          result?: Json | null
+          status?: Database["public"]["Enums"]["report_status"] | null
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedules: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          custom_prompt: string | null
+          id: string
+          is_active: boolean | null
+          knowledge_bases: string[] | null
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          organization_id: string
+          output_formats: string[] | null
+          recipients: string[] | null
+          recurrence: Database["public"]["Enums"]["schedule_recurrence"] | null
+          schedule_date: string | null
+          schedule_time: string | null
+          template: string
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          custom_prompt?: string | null
+          id?: string
+          is_active?: boolean | null
+          knowledge_bases?: string[] | null
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          organization_id: string
+          output_formats?: string[] | null
+          recipients?: string[] | null
+          recurrence?: Database["public"]["Enums"]["schedule_recurrence"] | null
+          schedule_date?: string | null
+          schedule_time?: string | null
+          template: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          custom_prompt?: string | null
+          id?: string
+          is_active?: boolean | null
+          knowledge_bases?: string[] | null
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          organization_id?: string
+          output_formats?: string[] | null
+          recipients?: string[] | null
+          recurrence?: Database["public"]["Enums"]["schedule_recurrence"] | null
+          schedule_date?: string | null
+          schedule_time?: string | null
+          template?: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_organization: { Args: { user_id: string }; Returns: string }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "it_admin" | "scheduler" | "viewer"
+      report_status: "pending" | "processing" | "completed" | "failed"
+      schedule_recurrence:
+        | "one_time"
+        | "daily"
+        | "weekly"
+        | "monthly"
+        | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +437,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "it_admin", "scheduler", "viewer"],
+      report_status: ["pending", "processing", "completed", "failed"],
+      schedule_recurrence: ["one_time", "daily", "weekly", "monthly", "custom"],
+    },
   },
 } as const
