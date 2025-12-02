@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
   Building2, Users, Landmark, Shield, TrendingUp, FileText, 
-  Database, Cpu, Network, CheckCircle2 
+  Database, Cpu, Network, CheckCircle2, Loader2 
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import oticLogo from "@/assets/otic-logo.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 import {
@@ -19,22 +20,64 @@ import Autoplay from "embla-carousel-autoplay";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(loginEmail, loginPassword);
-    navigate("/dashboard");
+    setIsLoginLoading(true);
+    
+    const { error } = await login(loginEmail, loginPassword);
+    
+    if (error) {
+      toast({
+        title: "Login failed",
+        description: error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Welcome back!",
+        description: "Successfully logged in.",
+      });
+      navigate("/dashboard");
+    }
+    setIsLoginLoading(false);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    signup(signupEmail, signupPassword);
-    navigate("/dashboard");
+    setIsSignupLoading(true);
+    
+    const { error } = await signup(signupEmail, signupPassword);
+    
+    if (error) {
+      toast({
+        title: "Signup failed",
+        description: error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Account created!",
+        description: "You can now log in with your credentials.",
+      });
+      navigate("/dashboard");
+    }
+    setIsSignupLoading(false);
   };
 
   const empoweredIndustries = [
@@ -314,8 +357,16 @@ export default function Landing() {
                     type="submit"
                     className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-semibold text-sm md:text-base"
                     size="lg"
+                    disabled={isLoginLoading}
                   >
-                    Log in to Console
+                    {isLoginLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Logging in...
+                      </>
+                    ) : (
+                      "Log in to Console"
+                    )}
                   </Button>
                 </form>
               </div>
@@ -353,8 +404,16 @@ export default function Landing() {
                     type="submit"
                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-sm md:text-base"
                     size="lg"
+                    disabled={isSignupLoading}
                   >
-                    Request Admin Access
+                    {isSignupLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Request Admin Access"
+                    )}
                   </Button>
                 </form>
               </div>
