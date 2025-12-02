@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,19 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { CalendarIcon, Sparkles, Send, Eye, Database, Save } from "lucide-react";
+import { CalendarIcon, Sparkles, Send, Eye, Database, Save, Loader2, Play } from "lucide-react";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import SuccessModal from "@/components/SuccessModal";
 
 export default function Scheduler() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { organizationId, role } = useUserRole();
+  
   const [reportName, setReportName] = useState("");
   const [template, setTemplate] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
@@ -24,6 +31,85 @@ export default function Scheduler() {
   const [recurrence, setRecurrence] = useState("");
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [recipients, setRecipients] = useState("");
+  const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<string[]>(["sharepoint", "sql"]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRunningNow, setIsRunningNow] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const canSchedule = ["admin", "it_admin", "scheduler"].includes(role || "");
+
+  const createReport = async () => {
+    if (!reportName || !template) {
+      toast.error("Please fill in report name and select a template");
+      return null;
+    }
+
+    if (!organizationId || !user) {
+      toast.error("You must be assigned to an organization to create reports");
+      return null;
+    }
+
+    const { data: report, error } = await supabase
+      .from("reports")
+      .insert({
+        organization_id: organizationId,
+        created_by: user.id,
+        name: reportName,
+        template,
+        custom_prompt: customPrompt || null,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating report:", error);
+      throw new Error(error.message);
+    }
+
+    return report;
+  };
+
+  const triggerAzureAgent = async (reportId: string) => {
+    const { data, error } = await supabase.functions.invoke("trigger-azure-agent", {
+      body: {
+        reportId,
+        template,
+        customPrompt,
+        knowledgeBases: selectedKnowledgeBases,
+      },
+    });
+
+    if (error) {
+      console.error("Error triggering Azure agent:", error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  };
+
+  const handleRunNow = async () => {
+    setIsRunningNow(true);
+
+    try {
+      const report = await createReport();
+      if (!report) {
+        setIsRunningNow(false);
+        return;
+      }
+
+      await triggerAzureAgent(report.id);
+
+      toast.success("Analysis started! Check the dashboard for results.");
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("Error running analysis:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to run analysis");
+    } finally {
+      setIsRunningNow(false);
+    }
+  };
 
   const handleScheduleReport = async () => {
     if (!reportName || !template || !date) {
@@ -31,13 +117,54 @@ export default function Scheduler() {
       return;
     }
 
-    // Placeholder for backend call
-    toast.success("Report scheduled successfully!");
-    
-    // Navigate to success modal or dashboard
-    setTimeout(() => {
-      navigate("/?success=true");
-    }, 1000);
+    if (!organizationId || !user) {
+      toast.error("You must be assigned to an organization");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const recurrenceMap: Record<string, string> = {
+        "once": "one_time",
+        "daily": "daily",
+        "weekly": "weekly",
+        "monthly": "monthly",
+        "custom": "one_time",
+      };
+
+      const { error } = await supabase
+        .from("schedules")
+        .insert({
+          organization_id: organizationId,
+          created_by: user.id,
+          name: reportName,
+          template,
+          custom_prompt: customPrompt || null,
+          schedule_date: date.toISOString(),
+          recurrence: recurrenceMap[recurrence] || "one_time",
+          next_run_at: date.toISOString(),
+          output_formats: selectedFormats,
+          recipients: recipients.split(",").map(r => r.trim()).filter(Boolean),
+          knowledge_bases: selectedKnowledgeBases,
+          is_active: true,
+        });
+
+      if (error) throw error;
+
+      toast.success("Report scheduled successfully!");
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("Error scheduling report:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to schedule report");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    navigate("/dashboard");
   };
 
   const formats = [
@@ -89,11 +216,11 @@ export default function Scheduler() {
                   <SelectValue placeholder="Choose a template" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="standard">Credit Analysis Standard</SelectItem>
-                  <SelectItem value="risk">Credit Risk Profile</SelectItem>
-                  <SelectItem value="360">Customer 360 Financials</SelectItem>
-                  <SelectItem value="eligibility">Loan Eligibility Insights</SelectItem>
-                  <SelectItem value="stress">Portfolio Stress Test</SelectItem>
+                  <SelectItem value="credit-analysis">Credit Analysis Standard</SelectItem>
+                  <SelectItem value="risk-profile">Credit Risk Profile</SelectItem>
+                  <SelectItem value="customer-360">Customer 360 Financials</SelectItem>
+                  <SelectItem value="loan-eligibility">Loan Eligibility Insights</SelectItem>
+                  <SelectItem value="portfolio-stress">Portfolio Stress Test</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -102,7 +229,7 @@ export default function Scheduler() {
               <Label htmlFor="prompt" className="text-xs md:text-sm">Custom Analysis Prompt (Optional)</Label>
               <Textarea
                 id="prompt"
-                placeholder="Add specific instructions..."
+                placeholder="Add specific instructions for the AI analysis..."
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 className="mt-1 md:mt-2 min-h-[80px] md:min-h-[100px] text-sm md:text-base"
@@ -199,10 +326,6 @@ export default function Scheduler() {
                 onChange={(e) => setRecipients(e.target.value)}
                 className="mt-1 md:mt-2 text-xs md:text-sm h-9 md:h-10"
               />
-              <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs md:text-sm h-8 md:h-9">Import from Outlook</Button>
-                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs md:text-sm h-8 md:h-9">Import from Gmail</Button>
-              </div>
             </div>
           </div>
         </SectionCard>
@@ -211,7 +334,23 @@ export default function Scheduler() {
         <SectionCard title="Knowledge Bases & Data Sources" description="Connect to your enterprise data">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
             {dataSources.map((source) => (
-              <div key={source.id} className="p-3 md:p-4 rounded-lg border border-border hover:border-primary/50 transition-all">
+              <div 
+                key={source.id} 
+                className={`p-3 md:p-4 rounded-lg border transition-all cursor-pointer ${
+                  selectedKnowledgeBases.includes(source.id) && source.status === "connected"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+                onClick={() => {
+                  if (source.status === "connected") {
+                    setSelectedKnowledgeBases((prev) =>
+                      prev.includes(source.id)
+                        ? prev.filter((kb) => kb !== source.id)
+                        : [...prev, source.id]
+                    );
+                  }
+                }}
+              >
                 <div className="flex flex-col gap-2 md:gap-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 md:gap-3 flex-1 min-w-0">
@@ -238,20 +377,60 @@ export default function Scheduler() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-2 md:gap-4">
-          <Button variant="outline" size="lg" className="w-full sm:w-auto text-xs md:text-base h-10 md:h-11">
-            <Save className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            Save as Draft
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="w-full sm:w-auto text-xs md:text-base h-10 md:h-11"
+            onClick={handleRunNow}
+            disabled={isRunningNow || !canSchedule}
+          >
+            {isRunningNow ? (
+              <>
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                Run Now
+              </>
+            )}
           </Button>
           <Button 
             size="lg" 
             className="w-full sm:flex-1 bg-primary hover:bg-primary-glow text-primary-foreground font-semibold glow-primary text-xs md:text-base h-10 md:h-11"
             onClick={handleScheduleReport}
+            disabled={isSubmitting || !canSchedule}
           >
-            <Send className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            Schedule Report
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                Scheduling...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                Schedule Report
+              </>
+            )}
           </Button>
         </div>
+
+        {!canSchedule && (
+          <p className="text-sm text-muted-foreground text-center">
+            You don't have permission to create reports. Contact your administrator.
+          </p>
+        )}
       </div>
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        reportName={reportName}
+        template={template}
+        scheduledDate={date}
+        recipients={recipients.split(",").map(r => r.trim()).filter(Boolean)}
+      />
     </Layout>
   );
 }
