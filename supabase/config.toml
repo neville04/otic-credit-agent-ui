@@ -2,3 +2,9 @@ project_id = "umruznuogjtencbzcxxm"
 
 [functions.trigger-azure-agent]
 verify_jwt = true
+
+[functions.register-organization]
+verify_jwt = false
+
+[functions.chat-with-agent]
+verify_jwt = true

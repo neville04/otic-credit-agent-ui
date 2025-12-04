@@ -20,14 +20,11 @@ import Autoplay from "embla-carousel-autoplay";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { login, signup, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
   const [isLoginLoading, setIsLoginLoading] = useState(false);
-  const [isSignupLoading, setIsSignupLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -56,28 +53,6 @@ export default function Landing() {
       navigate("/dashboard");
     }
     setIsLoginLoading(false);
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSignupLoading(true);
-    
-    const { error } = await signup(signupEmail, signupPassword);
-    
-    if (error) {
-      toast({
-        title: "Signup failed",
-        description: error,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Account created!",
-        description: "You can now log in with your credentials.",
-      });
-      navigate("/dashboard");
-    }
-    setIsSignupLoading(false);
   };
 
   const empoweredIndustries = [
@@ -373,49 +348,21 @@ export default function Landing() {
 
               {/* Signup Form */}
               <div className="glass-card-elevated rounded-xl p-6 md:p-8">
-                <h3 className="text-lg md:text-2xl font-semibold text-secondary mb-1 md:mb-2">Request Admin Access</h3>
-                <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">Start your credit intelligence journey</p>
-                <form onSubmit={handleSignup} className="space-y-3 md:space-y-4">
-                  <div>
-                    <Label htmlFor="signup-email" className="text-xs md:text-sm text-secondary">Email</Label>
-                    <Input 
-                      id="signup-email"
-                      type="email" 
-                      placeholder="your.email@company.com"
-                      value={signupEmail}
-                      onChange={(e) => setSignupEmail(e.target.value)}
-                      className="mt-1 text-sm md:text-base"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-password" className="text-xs md:text-sm text-secondary">Password</Label>
-                    <Input 
-                      id="signup-password"
-                      type="password" 
-                      placeholder="••••••••"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      className="mt-1 text-sm md:text-base"
-                      required
-                    />
-                  </div>
+                <h3 className="text-lg md:text-2xl font-semibold text-secondary mb-1 md:mb-2">New Organization?</h3>
+                <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">Register your organization to get started</p>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Set up your organization with an admin account to start using Otic Credit Agent for credit analysis.
+                  </p>
                   <Button 
-                    type="submit"
                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold text-sm md:text-base"
                     size="lg"
-                    disabled={isSignupLoading}
+                    onClick={() => navigate("/register")}
                   >
-                    {isSignupLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating account...
-                      </>
-                    ) : (
-                      "Request Admin Access"
-                    )}
+                    <Building2 className="w-4 h-4 mr-2" />
+                    Register Organization
                   </Button>
-                </form>
+                </div>
               </div>
             </div>
 

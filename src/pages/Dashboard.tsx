@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { StatCard } from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
+import { AgentChat } from "@/components/AgentChat";
 import { 
   FileText, Clock, CheckCircle, TrendingUp, 
   Calendar, Mail, File, Loader2, AlertCircle, Plus, Activity 
@@ -250,41 +251,47 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Recent Activity */}
-        <div className="glass-card rounded-lg md:rounded-xl p-3 md:p-6">
-          <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
-            <Activity className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-            <h2 className="text-base md:text-xl font-display font-semibold text-foreground">Recent Activity</h2>
-          </div>
-          
-          {recentReports.length > 0 ? (
-            <div className="space-y-2 md:space-y-4">
-              {recentReports.slice(0, 5).map((report) => (
-                <div key={report.id} className="flex items-center justify-between p-2 md:p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                    <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full flex-shrink-0 ${
-                      report.status === "completed" ? "bg-green-400" : 
-                      report.status === "processing" ? "bg-primary" : "bg-destructive"
-                    }`} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs md:text-sm font-medium text-foreground truncate">{report.name}</p>
-                      <p className="text-[10px] md:text-xs text-muted-foreground">
-                        {report.template} • {format(new Date(report.created_at), "MMM d, HH:mm")}
-                      </p>
+        {/* Agent Chat & Recent Activity Grid */}
+        <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
+          {/* Agent Chat */}
+          <AgentChat organizationId={organizationId} />
+
+          {/* Recent Activity */}
+          <div className="glass-card rounded-lg md:rounded-xl p-3 md:p-6 h-fit">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6">
+              <Activity className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+              <h2 className="text-base md:text-xl font-display font-semibold text-foreground">Recent Activity</h2>
+            </div>
+            
+            {recentReports.length > 0 ? (
+              <div className="space-y-2 md:space-y-4">
+                {recentReports.slice(0, 5).map((report) => (
+                  <div key={report.id} className="flex items-center justify-between p-2 md:p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                      <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full flex-shrink-0 ${
+                        report.status === "completed" ? "bg-green-400" : 
+                        report.status === "processing" ? "bg-primary" : "bg-destructive"
+                      }`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs md:text-sm font-medium text-foreground truncate">{report.name}</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground">
+                          {report.template} • {format(new Date(report.created_at), "MMM d, HH:mm")}
+                        </p>
+                      </div>
                     </div>
+                    <span className={`text-[10px] md:text-xs font-medium whitespace-nowrap ml-2 ${getStatusColor(report.status)}`}>
+                      {report.status}
+                    </span>
                   </div>
-                  <span className={`text-[10px] md:text-xs font-medium whitespace-nowrap ml-2 ${getStatusColor(report.status)}`}>
-                    {report.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No reports yet. Create your first report to get started.</p>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No reports yet. Create your first report to get started.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>
