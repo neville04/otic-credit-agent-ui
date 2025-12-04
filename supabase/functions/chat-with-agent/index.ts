@@ -12,40 +12,6 @@ interface ChatRequest {
   conversationHistory?: Array<{ role: string; content: string }>;
 }
 
-async function getAzureAccessToken(): Promise<string> {
-  const tenantId = Deno.env.get("AZURE_TENANT_ID");
-  const clientId = Deno.env.get("AZURE_CLIENT_ID");
-  const clientSecret = Deno.env.get("AZURE_CLIENT_SECRET");
-
-  if (!tenantId || !clientId || !clientSecret) {
-    throw new Error("Azure credentials not configured");
-  }
-
-  const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
-  
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      scope: "https://cognitiveservices.azure.com/.default",
-      grant_type: "client_credentials",
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Token error:", errorText);
-    throw new Error("Failed to get Azure access token");
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -87,52 +53,91 @@ serve(async (req: Request) => {
       );
     }
 
-    // Get Azure access token
-    const accessToken = await getAzureAccessToken();
-    const agentEndpoint = Deno.env.get("AZURE_AGENT_ENDPOINT");
-
-    if (!agentEndpoint) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ error: "Azure agent endpoint not configured" }),
+        JSON.stringify({ error: "AI service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Call Azure agent
-    const agentResponse = await fetch(agentEndpoint, {
+    // Build messages array with conversation history
+    const messages = [
+      {
+        role: "system",
+        content: `You are the Otic Credit Agent, an enterprise-grade AI assistant specialized in credit analysis and financial intelligence. You help users with:
+- Credit risk assessment and analysis
+- Loan eligibility evaluation
+- Portfolio stress testing
+- Customer financial profiling
+- Credit decision recommendations
+
+Provide clear, professional, and actionable insights. When analyzing credit data, be thorough but concise. Always prioritize accuracy and compliance with financial regulations.`
+      },
+      ...(conversationHistory || []).map(msg => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content
+      })),
+      { role: "user" as const, content: message }
+    ];
+
+    console.log("Calling Lovable AI with message:", message);
+
+    // Call Lovable AI Gateway
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message,
-        organizationId,
-        userId: user.id,
-        conversationHistory: conversationHistory || [],
+        model: "google/gemini-2.5-flash",
+        messages,
       }),
     });
 
-    if (!agentResponse.ok) {
-      const errorText = await agentResponse.text();
-      console.error("Agent error:", errorText);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Lovable AI error:", response.status, errorText);
       
-      // Return a helpful error message but still valid response
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            response: "I'm currently experiencing high demand. Please try again in a moment.",
+            error: "Rate limited"
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ 
+            response: "AI service requires additional credits. Please contact your administrator.",
+            error: "Payment required"
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ 
-          response: "I'm having trouble connecting to the credit analysis system right now. Please try again in a moment, or check that your Azure agent is properly configured.",
-          error: "Agent unavailable"
+          response: "I'm having trouble processing your request right now. Please try again.",
+          error: "AI service error"
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const agentData = await agentResponse.json();
+    const data = await response.json();
+    const aiResponse = data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
+
+    console.log("AI response received successfully");
 
     return new Response(
       JSON.stringify({ 
-        response: agentData.response || agentData.message || "Analysis complete.",
-        data: agentData
+        response: aiResponse,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
