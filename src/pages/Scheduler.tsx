@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-import SuccessModal from "@/components/SuccessModal";
+import { SuccessModal } from "@/components/SuccessModal";
 
 export default function Scheduler() {
   const navigate = useNavigate();
@@ -133,6 +133,8 @@ export default function Scheduler() {
         "custom": "one_time",
       };
 
+      const recurrenceValue = (recurrenceMap[recurrence] || "one_time") as "one_time" | "daily" | "weekly" | "monthly" | "custom";
+      
       const { error } = await supabase
         .from("schedules")
         .insert({
@@ -142,7 +144,7 @@ export default function Scheduler() {
           template,
           custom_prompt: customPrompt || null,
           schedule_date: date.toISOString(),
-          recurrence: recurrenceMap[recurrence] || "one_time",
+          recurrence: recurrenceValue,
           next_run_at: date.toISOString(),
           output_formats: selectedFormats,
           recipients: recipients.split(",").map(r => r.trim()).filter(Boolean),
@@ -426,10 +428,12 @@ export default function Scheduler() {
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
-        reportName={reportName}
-        template={template}
-        scheduledDate={date}
-        recipients={recipients.split(",").map(r => r.trim()).filter(Boolean)}
+        reportDetails={{
+          name: reportName,
+          nextRun: date ? format(date, "PPP 'at' p") : "Run now",
+          recipients: recipients || "None specified",
+          formats: selectedFormats.length > 0 ? selectedFormats : ["Not specified"],
+        }}
       />
     </Layout>
   );
