@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
@@ -13,7 +14,6 @@ interface ChatRequest {
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -53,94 +53,111 @@ serve(async (req: Request) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
+    // Get Azure credentials from environment
+    const AZURE_TENANT_ID = Deno.env.get('AZURE_TENANT_ID');
+    const AZURE_CLIENT_ID = Deno.env.get('AZURE_CLIENT_ID');
+    const AZURE_CLIENT_SECRET = Deno.env.get('AZURE_CLIENT_SECRET');
+    const AZURE_AGENT_ENDPOINT = Deno.env.get('AZURE_AGENT_ENDPOINT');
+    const AZURE_AI_API_VERSION = Deno.env.get('AZURE_AI_API_VERSION') || '2025-11-15-preview';
+
+    if (!AZURE_TENANT_ID || !AZURE_CLIENT_ID || !AZURE_CLIENT_SECRET || !AZURE_AGENT_ENDPOINT) {
+      console.error('Missing Azure credentials:', {
+        hasTenantId: !!AZURE_TENANT_ID,
+        hasClientId: !!AZURE_CLIENT_ID,
+        hasClientSecret: !!AZURE_CLIENT_SECRET,
+        hasEndpoint: !!AZURE_AGENT_ENDPOINT
+      });
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ error: "Azure agent not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Build messages array with conversation history
-    const messages = [
-      {
-        role: "system",
-        content: `You are the Otic Credit Agent, an enterprise-grade AI assistant specialized in credit analysis and financial intelligence. You help users with:
-- Credit risk assessment and analysis
-- Loan eligibility evaluation
-- Portfolio stress testing
-- Customer financial profiling
-- Credit decision recommendations
+    console.log('Getting Azure AD token...');
 
-Provide clear, professional, and actionable insights. When analyzing credit data, be thorough but concise. Always prioritize accuracy and compliance with financial regulations.`
-      },
-      ...(conversationHistory || []).map(msg => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content
-      })),
-      { role: "user" as const, content: message }
-    ];
-
-    console.log("Calling Lovable AI with message:", message);
-
-    // Call Lovable AI Gateway
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages,
-      }),
+    // Step 1: Get Azure AD access token
+    const tokenUrl = `https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token`;
+    const tokenParams = new URLSearchParams({
+      client_id: AZURE_CLIENT_ID,
+      client_secret: AZURE_CLIENT_SECRET,
+      scope: 'https://cognitiveservices.azure.com/.default',
+      grant_type: 'client_credentials'
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ 
-            response: "I'm currently experiencing high demand. Please try again in a moment.",
-            error: "Rate limited"
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ 
-            response: "AI service requires additional credits. Please contact your administrator.",
-            error: "Payment required"
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
+    const tokenResponse = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: tokenParams.toString()
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error('Azure AD token error:', errorText);
       return new Response(
         JSON.stringify({ 
-          response: "I'm having trouble processing your request right now. Please try again.",
-          error: "AI service error"
+          response: "Unable to authenticate with Azure. Please check credentials.",
+          error: "Azure AD authentication failed"
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
+    const { access_token } = await tokenResponse.json();
+    console.log('Successfully obtained Azure AD token');
 
-    console.log("AI response received successfully");
+    // Step 2: Build messages array with conversation history
+    const messages = [
+      ...(conversationHistory || []).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })),
+      { role: "user", content: message }
+    ];
+
+    console.log('Calling Azure agent with message:', message);
+
+    // Step 3: Call Azure agent endpoint
+    const agentResponse = await fetch(`${AZURE_AGENT_ENDPOINT}?api-version=${AZURE_AI_API_VERSION}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: messages,
+        max_tokens: 2000
+      })
+    });
+
+    if (!agentResponse.ok) {
+      const errorText = await agentResponse.text();
+      console.error('Azure agent error:', agentResponse.status, errorText);
+      return new Response(
+        JSON.stringify({ 
+          response: `Azure agent error: ${errorText}`,
+          error: "Azure agent request failed"
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const agentResult = await agentResponse.json();
+    console.log('Azure agent response received');
+
+    // Extract the response content - handle various Azure response formats
+    const aiResponse = agentResult.choices?.[0]?.message?.content || 
+                       agentResult.output || 
+                       agentResult.response ||
+                       agentResult.content ||
+                       (typeof agentResult === 'string' ? agentResult : JSON.stringify(agentResult));
 
     return new Response(
-      JSON.stringify({ 
-        response: aiResponse,
-      }),
+      JSON.stringify({ response: aiResponse }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+
   } catch (error) {
     console.error("Chat error:", error);
     return new Response(
