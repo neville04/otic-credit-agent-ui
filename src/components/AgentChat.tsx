@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -17,12 +17,18 @@ interface AgentChatProps {
   organizationId: string;
 }
 
+const quickActions = [
+  { label: "Draft Report", prompt: "Draft a credit risk assessment report for our portfolio" },
+  { label: "Analyze Risk", prompt: "Analyze the current loan risk factors for this week" },
+  { label: "Summary", prompt: "Generate a summary of recent credit activities" },
+];
+
 export function AgentChat({ organizationId }: AgentChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content: "Hello! I'm the Otic Credit Agent. I can help you analyze credit data, generate reports, and answer questions about credit risk. How can I assist you today?",
+      content: "Hello! I'm the Otic Credit Agent. I can help you analyze credit data, draft reports, and answer questions about credit risk. Try the quick actions below or ask me anything!",
       timestamp: new Date(),
     },
   ]);
@@ -155,6 +161,25 @@ export function AgentChat({ organizationId }: AgentChatProps) {
           <div ref={scrollRef} />
         </div>
       </ScrollArea>
+
+      {/* Quick Actions */}
+      <div className="px-3 md:px-4 py-2 border-t border-border flex gap-2 overflow-x-auto">
+        {quickActions.map((action) => (
+          <Button
+            key={action.label}
+            variant="outline"
+            size="sm"
+            className="text-xs whitespace-nowrap h-7 px-2"
+            onClick={() => {
+              setInput(action.prompt);
+            }}
+            disabled={isLoading}
+          >
+            <FileText className="w-3 h-3 mr-1" />
+            {action.label}
+          </Button>
+        ))}
+      </div>
 
       {/* Input */}
       <div className="p-3 md:p-4 border-t border-border">
