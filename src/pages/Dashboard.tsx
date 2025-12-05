@@ -4,9 +4,10 @@ import { Layout } from "@/components/Layout";
 import { StatCard } from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
 import { AgentChat } from "@/components/AgentChat";
+import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { 
   FileText, Clock, CheckCircle, TrendingUp, 
-  Calendar, Mail, File, Loader2, AlertCircle, Plus, Activity 
+  Calendar, Mail, File, Loader2, AlertCircle, Plus, Activity, BarChart3
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -250,6 +251,15 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* Analytics Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            <h2 className="text-base md:text-xl font-display font-semibold text-foreground">Analytics Overview</h2>
+          </div>
+          <DashboardAnalytics organizationId={organizationId} />
+        </div>
 
         {/* Agent Chat & Recent Activity Grid */}
         <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
