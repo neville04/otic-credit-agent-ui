@@ -54,17 +54,21 @@ serve(async (req: Request) => {
     }
 
     // Get Azure credentials from environment
+    const AZURE_TENANT_ID = Deno.env.get('AZURE_TENANT_ID');
+    const AZURE_CLIENT_ID = Deno.env.get('AZURE_CLIENT_ID');
+    const AZURE_CLIENT_SECRET = Deno.env.get('AZURE_CLIENT_SECRET');
     const AZURE_AGENT_ENDPOINT = Deno.env.get('AZURE_AGENT_ENDPOINT');
-    const AZURE_AI_PROJECT_API_KEY = Deno.env.get('AZURE_AI_PROJECT_API_KEY');
     const AZURE_AI_API_VERSION = Deno.env.get('AZURE_AI_API_VERSION') || '2025-11-15-preview';
 
     console.log('Azure config check:', { 
       hasEndpoint: !!AZURE_AGENT_ENDPOINT, 
-      hasApiKey: !!AZURE_AI_PROJECT_API_KEY,
+      hasTenantId: !!AZURE_TENANT_ID,
+      hasClientId: !!AZURE_CLIENT_ID,
+      hasClientSecret: !!AZURE_CLIENT_SECRET,
       apiVersion: AZURE_AI_API_VERSION
     });
 
-    if (!AZURE_AGENT_ENDPOINT || !AZURE_AI_PROJECT_API_KEY) {
+    if (!AZURE_AGENT_ENDPOINT || !AZURE_TENANT_ID || !AZURE_CLIENT_ID || !AZURE_CLIENT_SECRET) {
       console.error('Missing Azure credentials');
       return new Response(
         JSON.stringify({ error: "Azure agent not configured" }),
@@ -72,8 +76,44 @@ serve(async (req: Request) => {
       );
     }
 
-    // Build the chat completions URL - endpoint already includes the OpenAI protocol path
-    const chatUrl = `${AZURE_AGENT_ENDPOINT}/chat/completions?api-version=${AZURE_AI_API_VERSION}`;
+    // Step 1: Get Azure AD access token
+    console.log('Getting Azure AD token...');
+    const tokenUrl = `https://login.microsoftonline.com/${AZURE_TENANT_ID}/oauth2/v2.0/token`;
+    const tokenParams = new URLSearchParams({
+      client_id: AZURE_CLIENT_ID,
+      client_secret: AZURE_CLIENT_SECRET,
+      scope: 'https://cognitiveservices.azure.com/.default',
+      grant_type: 'client_credentials'
+    });
+
+    const tokenResponse = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: tokenParams.toString()
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error('Azure AD token error:', errorText);
+      return new Response(
+        JSON.stringify({ 
+          response: "Unable to authenticate with Azure. Please check credentials.",
+          error: "Azure AD authentication failed"
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { access_token } = await tokenResponse.json();
+    console.log('Successfully obtained Azure AD token');
+
+    // Clean the endpoint URL (remove any trailing quotes or special chars)
+    const cleanEndpoint = AZURE_AGENT_ENDPOINT.replace(/[";]/g, '').trim();
+    
+    // Build the chat completions URL
+    const chatUrl = `${cleanEndpoint}/chat/completions?api-version=${AZURE_AI_API_VERSION}`;
     
     console.log('Calling Azure agent at:', chatUrl);
 
@@ -87,12 +127,12 @@ serve(async (req: Request) => {
       { role: 'user', content: message }
     ];
 
-    // Call the Azure agent using OpenAI-compatible format with api-key header
+    // Call the Azure agent using Bearer token authentication
     const agentResponse = await fetch(chatUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'api-key': AZURE_AI_PROJECT_API_KEY,
+        'Authorization': `Bearer ${access_token}`,
       },
       body: JSON.stringify({
         messages,
@@ -108,8 +148,8 @@ serve(async (req: Request) => {
       console.error('Azure agent error:', agentResponse.status, errorText);
       return new Response(
         JSON.stringify({ 
-          response: `I apologize, but I encountered an error connecting to the Azure agent. Error: ${errorText}`,
-          error: "Azure agent request failed"
+          response: `I apologize, but I encountered an error connecting to the Azure agent. Status: ${agentResponse.status}`,
+          error: errorText
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
